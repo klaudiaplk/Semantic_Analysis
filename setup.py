@@ -9,4 +9,12 @@ setup(
             'semantic_analysis = Semantic_analysis.main:main'
         ]
     },
+    install_requires=[
+        'matplotlib>=3.3.3',
+        'textblob>=0.15.3',
+        'nltk>=3.5',
+        'GetOldTweets3',
+        'snscrape',
+        'pandas>=1.2.0'
+    ]
 )
