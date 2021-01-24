@@ -1,24 +1,14 @@
-# Cleaning the Text
-import string 
+import string
 from collections import Counter
 import matplotlib as plt
 
-import GetOldTweets3 as got
-
-def get_tweets() :
-    tweetCriteria = got.manager.TweetCriteria().setQuerySearch('corona virus')\
-                                           .setSince("2019-08-01")\
-                                           .setUntil("2015-09-30")\
-                                           .setMaxTweets(10)
-    tweets = got.manager.TweetManager.getTweets(tweetCriteria)
-    text_tweets = [[tweet.text] for tweet in tweets]
-    return text_tweets
+from Semantic_analysis.prepare_data import get_input
 
 text = ""
-text_tweets = get_tweets()
+text_tweets = get_input()
 length = len(text_tweets)
 
-for i in range(0, length) :
+for i in range(0, length):
     text = text_tweets[i][0] + " " + text
 
 # text = open('read.txt', encoding='utf-8').read()
@@ -58,7 +48,7 @@ w = Counter(emotion_list)
 print(w)
 
 fig, ax1 = plt.subplots()
-ax1.bar(w.keys(),w.values())
+ax1.bar(w.keys(), w.values())
 fig.autofmt_xdate()
 plt.savefig('graph.png')
 plt.show()
