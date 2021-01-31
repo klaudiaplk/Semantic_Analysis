@@ -4,6 +4,7 @@ from Semantic_analysis.text_blob import textblob_semantic_analysis
 from Semantic_analysis.nltk import nltk
 import os
 from Semantic_analysis.prepare_data import get_input
+from Semantic_analysis.naive_bayes_classifier import naive_bayes_classifier
 
 
 def main():
@@ -40,4 +41,5 @@ def start(args):
     if args.library == 'textblob':
         textblob_semantic_analysis(args.output_file, data)
     elif args.library == 'nltk':
-        nltk(args.output_file, data)
+        # nltk(args.output_file, data)
+        naive_bayes_classifier(args.output_file, data)
