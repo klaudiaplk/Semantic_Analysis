@@ -65,6 +65,6 @@ def sentiment_analyse(sentiment_text, positive_feedbacks, negative_feedbacks, ne
     if neg > pos:
         negative_feedbacks.append([sentiment_text, -1])
     elif pos > neg:
-        positive_feedbacks.append([sentiment_text, -1])
+        positive_feedbacks.append([sentiment_text, 1])
     else:
-        neutral_feedbacks.append([sentiment_text, -1])
+        neutral_feedbacks.append([sentiment_text, 0])
