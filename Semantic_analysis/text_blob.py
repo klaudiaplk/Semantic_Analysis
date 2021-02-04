@@ -10,17 +10,15 @@ def textblob_semantic_analysis(output_file, data):
     """
     positive_feedbacks = []
     negative_feedbacks = []
-    neutral_feedbacks = []
     for feedback in data:
       feedback_polarity = TextBlob(feedback).sentiment.polarity
-      if feedback_polarity > 0.1:
-        positive_feedbacks.append([feedback, 1])
+      if feedback_polarity > 0:
+        positive_feedbacks.append([feedback, 'Positive'])
         continue
-      if feedback_polarity < 0.1 and feedback_polarity > -0.1:
-        neutral_feedbacks.append([feedback, 0])
-        continue
-      negative_feedbacks.append([feedback, -1])
+      negative_feedbacks.append([feedback, 'Negative'])
 
-    final = positive_feedbacks + neutral_feedbacks + negative_feedbacks
+    final = positive_feedbacks + negative_feedbacks
     df = pd.DataFrame(final, columns=['Text', 'Feedback'])
     df.to_csv(output_file, index=False)
+
+    return df

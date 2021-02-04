@@ -13,8 +13,13 @@ setup(
         'matplotlib>=3.3.3',
         'textblob>=0.15.3',
         'nltk>=3.5',
-        'GetOldTweets3',
         'snscrape',
-        'pandas>=1.2.0'
+        'pandas>=1.2.0',
+        'scikit-learn>=0.24',
+        'Keras>=2.4.3',
+        'gensim>=3.8.3',
+        'tensorflow<2.4.0,>=2.3.0',
+        'h5py<2.11.0,>=2.10.0',
+        'notebook'
     ]
 )

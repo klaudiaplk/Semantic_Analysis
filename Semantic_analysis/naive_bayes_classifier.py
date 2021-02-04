@@ -1,13 +1,18 @@
+import logging
+import os
 import pandas as pd
 import re
 import string
 import random
 
 from nltk.stem.wordnet import WordNetLemmatizer
-from nltk.corpus import twitter_samples, stopwords
+from nltk.corpus import stopwords
 from nltk.tag import pos_tag
 from nltk.tokenize import word_tokenize
 from nltk import FreqDist, classify, NaiveBayesClassifier
+
+DATASET_COLUMNS = ["target", "ids", "date", "flag", "user", "text"]
+DATASET_ENCODING = "ISO-8859-1"
 
 
 def naive_bayes_classifier(output_file, data):
@@ -17,19 +22,36 @@ def naive_bayes_classifier(output_file, data):
     :param data: List of sentences for semnatic analysis.
     """
 
-    stop_words = stopwords.words('english')
+    cur_path = os.path.dirname(__file__)
+    dataset_filename = os.listdir(os.path.join(cur_path, '../input'))[0]
+    dataset_path = os.path.join(cur_path, "..", "input", dataset_filename)
+    df = pd.read_csv(dataset_path, encoding=DATASET_ENCODING, names=DATASET_COLUMNS)
 
-    positive_tweet_tokens = twitter_samples.tokenized('positive_tweets.json')
-    negative_tweet_tokens = twitter_samples.tokenized('negative_tweets.json')
+    decode_map = {0: "NEGATIVE", 4: "POSITIVE"}
+
+    df.target = df.target.apply(lambda x: decode_sentiment(x, decode_map))
+
+    positive_tweets = []
+    negative_tweets = []
+
+    for index, row in df.iterrows():
+        if row['target'] == 'POSITIVE':
+            positive_tweets.append(df['text'][index])
+        elif row['target'] == 'NEGATIVE':
+            negative_tweets.append(df['text'][index])
+
+    stop_words = stopwords.words('english')
 
     positive_cleaned_tokens_list = []
     negative_cleaned_tokens_list = []
 
-    for tokens in positive_tweet_tokens:
-        positive_cleaned_tokens_list.append(remove_noise(tokens, stop_words))
+    for tokens in positive_tweets:
+        logging.info("Remove noise for positive tweet: {}".format(tokens))
+        positive_cleaned_tokens_list.append(remove_noise(word_tokenize(tokens), stop_words))
 
-    for tokens in negative_tweet_tokens:
-        negative_cleaned_tokens_list.append(remove_noise(tokens, stop_words))
+    for tokens in negative_tweets:
+        logging.info("Remove noise for negative tweet: {}".format(tokens))
+        negative_cleaned_tokens_list.append(remove_noise(word_tokenize(tokens), stop_words))
 
     # For information and the most common positive words, please comment out the section below.
     # all_pos_words = get_all_words(positive_cleaned_tokens_list)
@@ -49,9 +71,12 @@ def naive_bayes_classifier(output_file, data):
 
     random.shuffle(dataset)
 
+    dataset_len = len(dataset)
+    seventy_percent = round(dataset_len * 0.8)
+
     # division of a dataset into positive and negative tweets in a ratio of 70% training data and 30% test data
-    train_data = dataset[:7000]
-    test_data = dataset[7000:]
+    train_data = dataset[:seventy_percent]
+    test_data = dataset[seventy_percent:]
 
     classifier = NaiveBayesClassifier.train(train_data)
 
@@ -67,12 +92,18 @@ def naive_bayes_classifier(output_file, data):
         clened_text = remove_noise(word_tokenize(text))
         # classification
         if classifier.classify(dict([token, True] for token in clened_text)) == 'Negative':
-            negative_feedbacks.append([text, -1])
+            negative_feedbacks.append([text, 'Negative'])
         elif classifier.classify(dict([token, True] for token in clened_text)) == 'Positive':
-            positive_feedbacks.append([text, 1])
+            positive_feedbacks.append([text, 'Positive'])
     final = positive_feedbacks + negative_feedbacks
     df = pd.DataFrame(final, columns=['Text', 'Feedback'])
     df.to_csv(output_file, index=False)
+
+    return df
+
+
+def decode_sentiment(label, decode_map):
+    return decode_map[int(label)]
 
 
 def remove_noise(text_tokens, stop_words=()):

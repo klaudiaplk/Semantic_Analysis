@@ -47,11 +47,6 @@ def nltk(output_file, data):
         w = Counter(emotion_list)
         sentiment_analyse(cleaned_text, positive_feedbacks, negative_feedbacks, neutral_feedbacks)
 
-        # fig, ax1 = plt.subplots()
-        # ax1.bar(w.keys(), w.values())
-        # fig.autofmt_xdate()
-        # plt.savefig('graph.png')
-        # plt.show()
     final = positive_feedbacks + neutral_feedbacks + negative_feedbacks
     df = pd.DataFrame(final, columns=['Text', 'Feedback'])
     df.to_csv(output_file, index=False)
