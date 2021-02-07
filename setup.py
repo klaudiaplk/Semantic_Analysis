@@ -20,6 +20,7 @@ setup(
         'gensim>=3.8.3',
         'tensorflow<2.4.0,>=2.3.0',
         'h5py<2.11.0,>=2.10.0',
-        'notebook'
+        'notebook',
+        'afinn'
     ]
 )

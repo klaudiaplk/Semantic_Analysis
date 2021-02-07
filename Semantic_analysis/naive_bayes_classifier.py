@@ -1,15 +1,9 @@
-import logging
-import os
-import pandas as pd
-import re
-import string
 import random
 
-from nltk.stem.wordnet import WordNetLemmatizer
-from nltk.corpus import stopwords
-from nltk.tag import pos_tag
+import pandas as pd
+from Semantic_analysis.prepare_data import prepare_cleaned_dataset, remove_noise
+from nltk import classify, FreqDist, NaiveBayesClassifier
 from nltk.tokenize import word_tokenize
-from nltk import FreqDist, classify, NaiveBayesClassifier
 
 DATASET_COLUMNS = ["target", "ids", "date", "flag", "user", "text"]
 DATASET_ENCODING = "ISO-8859-1"
@@ -22,36 +16,7 @@ def naive_bayes_classifier(output_file, data):
     :param data: List of sentences for semnatic analysis.
     """
 
-    cur_path = os.path.dirname(__file__)
-    dataset_filename = os.listdir(os.path.join(cur_path, '../input'))[0]
-    dataset_path = os.path.join(cur_path, "..", "input", dataset_filename)
-    df = pd.read_csv(dataset_path, encoding=DATASET_ENCODING, names=DATASET_COLUMNS)
-
-    decode_map = {0: "NEGATIVE", 4: "POSITIVE"}
-
-    df.target = df.target.apply(lambda x: decode_sentiment(x, decode_map))
-
-    positive_tweets = []
-    negative_tweets = []
-
-    for index, row in df.iterrows():
-        if row['target'] == 'POSITIVE':
-            positive_tweets.append(df['text'][index])
-        elif row['target'] == 'NEGATIVE':
-            negative_tweets.append(df['text'][index])
-
-    stop_words = stopwords.words('english')
-
-    positive_cleaned_tokens_list = []
-    negative_cleaned_tokens_list = []
-
-    for tokens in positive_tweets:
-        logging.info("Remove noise for positive tweet: {}".format(tokens))
-        positive_cleaned_tokens_list.append(remove_noise(word_tokenize(tokens), stop_words))
-
-    for tokens in negative_tweets:
-        logging.info("Remove noise for negative tweet: {}".format(tokens))
-        negative_cleaned_tokens_list.append(remove_noise(word_tokenize(tokens), stop_words))
+    positive_cleaned_tokens_list, negative_cleaned_tokens_list = prepare_cleaned_dataset()
 
     # For information and the most common positive words, please comment out the section below.
     # all_pos_words = get_all_words(positive_cleaned_tokens_list)
@@ -72,11 +37,11 @@ def naive_bayes_classifier(output_file, data):
     random.shuffle(dataset)
 
     dataset_len = len(dataset)
-    seventy_percent = round(dataset_len * 0.8)
+    eighty_percent = round(dataset_len * 0.8)
 
     # division of a dataset into positive and negative tweets in a ratio of 70% training data and 30% test data
-    train_data = dataset[:seventy_percent]
-    test_data = dataset[seventy_percent:]
+    train_data = dataset[:eighty_percent]
+    test_data = dataset[eighty_percent:]
 
     classifier = NaiveBayesClassifier.train(train_data)
 
@@ -100,40 +65,6 @@ def naive_bayes_classifier(output_file, data):
     df.to_csv(output_file, index=False)
 
     return df
-
-
-def decode_sentiment(label, decode_map):
-    return decode_map[int(label)]
-
-
-def remove_noise(text_tokens, stop_words=()):
-    """
-
-    :param text_tokens: tweet tokens
-    :param stop_words: tuple of stop words
-    :return: list of cleaned tokens making up the entire text_tokens
-    """
-
-    cleaned_tokens = []
-
-    for token, tag in pos_tag(text_tokens):
-        token = re.sub('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+#]|[!*\(\),]|'\
-                       '(?:%[0-9a-fA-F][0-9a-fA-F]))+', '', token)
-        token = re.sub("(@[A-Za-z0-9_]+)", "", token)
-
-        if tag.startswith("NN"):
-            pos = 'n'
-        elif tag.startswith('VB'):
-            pos = 'v'
-        else:
-            pos = 'a'
-
-        lemmatizer = WordNetLemmatizer()
-        token = lemmatizer.lemmatize(token, pos)
-
-        if len(token) > 0 and token not in string.punctuation and token.lower() not in stop_words:
-            cleaned_tokens.append(token.lower())
-    return cleaned_tokens
 
 
 def get_all_words(cleaned_tokens_list):
