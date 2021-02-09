@@ -15,14 +15,14 @@ def main():
 
     parser = argparse.ArgumentParser(description='semantic_analysis')
     parser.add_argument('--library', choices=['textblob', 'bayes', 'lexicon'], required=False,
-                        help='Possibility to choose library',
+                        help='Possibility to choose method',
                         default='textblob')
     parser.add_argument('--tweets-file', type=str, required=True,
-                        help='Path to save tweets for semantic analysis.')
+                        help='Path to file to save tweets for semantic analysis.')
     parser.add_argument('--output-file', type=str, required=True,
-                        help='Path to save the program output with semantic analysis.')
+                        help='Path to file to save the program output with semantic analysis.')
     parser.add_argument('--plot-dir', type=str, required=True,
-                        help='Path to save the output plot for semantic analysis.')
+                        help='Path to directory to save the output plot for semantic analysis.')
     parser.set_defaults(func=start)
     args = parser.parse_args()
     args.func(args)
