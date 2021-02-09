@@ -1,8 +1,8 @@
 import logging
 
 import pandas as pd
+from Semantic_analysis.prepare_data import calculate_accuracy
 from Semantic_analysis.prepare_data import prepare_test_dataset
-from Semantic_analysis.text_blob import calculate_accuracy
 from afinn import Afinn
 
 

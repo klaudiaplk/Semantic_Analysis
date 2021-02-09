@@ -189,3 +189,21 @@ def remove_noise(text_tokens, stop_words=()):
         if len(token) > 0 and token not in string.punctuation and token.lower() not in stop_words:
             cleaned_tokens.append(token.lower())
     return cleaned_tokens
+
+
+def calculate_accuracy(final_test, results):
+    """Compute accuracy.
+
+    :param final_test: list of data evaluation by the selected method
+    :param results: list of original values assigned to the data
+    :return: value of accuracy
+    """
+    correct_evaluate = 0
+    for i, final_result in enumerate(final_test):
+        if final_result[1].lower() == results[i].lower():
+            correct_evaluate = correct_evaluate + 1
+
+    all_results = len(results)
+    accuracy = correct_evaluate / all_results
+
+    return accuracy

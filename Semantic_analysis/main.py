@@ -43,10 +43,8 @@ def start(args):
                         "Please enter the correct one.")
     data = get_input(args.tweets_file)
     if args.library == 'textblob':
-        logging.info("Not ready!")
-        # test_data, results = prepare_test_dataset()
-        # df = textblob_semantic_analysis(test_data, results, args.output_file, data)
-        # plot(df, "textblob", args.plot_dir)
+        df = textblob_semantic_analysis(args.output_file, data)
+        plot(df, "textblob", args.plot_dir)
     elif args.library == 'bayes':
         df = naive_bayes_classifier(args.output_file, data)
         plot(df, "naive_bayes_classifier", args.plot_dir)
